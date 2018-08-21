@@ -1,6 +1,6 @@
 //
 //  FileWriter.swift
-//  Commander
+//  LocalizationParser
 //
 //  Created by Mikkel Sindberg Eriksen on 20/08/2018.
 //
@@ -8,6 +8,25 @@
 import Foundation
 
 public final class FileWriter {
+
+    public static func write(localization: Localization, to path: URL) {
+
+        let filePath = path
+            .appendingPathComponent(localization.platform.rawValue)
+            .appendingPathComponent(localization.language.rawValue)
+            .appendingPathComponent(localization.platform.fileName())
+
+        for content in localization.contents {
+            switch content {
+            case .header(let value):
+                let header = localization.platform.header(with: value)
+                try! append(value: header, to: filePath)
+            case .localizedString(let tag, let value):
+                let localizedString = localization.platform.localizedString(with: value, for: tag)
+                try! append(value: localizedString, to: filePath)
+            }
+        }
+    }
 
     public static func write(header: String, for languages: [Language], platform: Platform) {
         for language in languages {
@@ -40,6 +59,8 @@ public final class FileWriter {
                 print("Failed to write value: \(value)")
             }
         } else {
+            let folderPath = filePath.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: folderPath, withIntermediateDirectories: true, attributes: nil)
             try value.write(to: filePath, atomically: true, encoding: encoding)
         }
     }

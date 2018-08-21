@@ -1,6 +1,6 @@
 //
 //  Platform.swift
-//  Commander
+//  LocalizationParser
 //
 //  Created by Mikkel Sindberg Eriksen on 20/08/2018.
 //
@@ -10,6 +10,15 @@ import Foundation
 public enum Platform: String {
     case ios = "ios"
     case android = "android"
+
+    func fileName() -> String {
+        switch self {
+        case .ios:
+            return "localizable.strings"
+        case .android:
+            return "strings.xml"
+        }
+    }
 
     func header(with value: String) -> String {
         switch self {

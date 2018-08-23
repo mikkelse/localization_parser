@@ -12,6 +12,9 @@ enum ParseError: Error, LocalizedError {
     }
 }
 
+// TODO: Support positional substition for both iOS and Android
+// TODO: Write comments to localized file as well
+
 let main = command(
 
     Argument<String>("input", description: "The path to the localization file to parse."),

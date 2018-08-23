@@ -7,10 +7,6 @@
 
 import Foundation
 
-enum ParseError: Error {
-    case error(String)
-}
-
 /// An enum defining the different columns of a table.
 public enum ColumnDefinition {
 

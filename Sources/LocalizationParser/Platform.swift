@@ -7,12 +7,6 @@
 
 import Foundation
 
-private let dateFormatter: DateFormatter = {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-    return dateFormatter
-}()
-
 /// An enum defining different platforms to localize for.
 public enum Platform: String {
 
@@ -21,6 +15,15 @@ public enum Platform: String {
 
     /// The platform is an android device.
     case android = "android"
+}
+
+private let dateFormatter: DateFormatter = {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+    return dateFormatter
+}()
+
+extension Platform {
 
     /// The name of the localized outpput file for the platform.
     var localizedFileName: String {
@@ -88,19 +91,34 @@ public enum Platform: String {
             return "\n</resources>"
         }
     }
+}
+
+extension Platform {
+
+    /// The platform specific string value for the given localization content.
+    func value(for content: LocalizationContent) throws -> String {
+        switch content {
+        case .header(let value):
+            return header(with: value)
+        case .localizedString(let tag, let value):
+            return try localizedString(with: value, for: tag)
+        case .emptyLine:
+            return emptyLine()
+        }
+    }
 
     /// A header with the given value formatted for the platform.
-    func header(with value: String) -> String {
+    private func header(with value: String) -> String {
         switch self {
-        case .ios: return "\n// \(value)\n"
-        case .android: return "\n\t<!-- \(value) -->\n"
+        case .ios: return "// \(value)\n"
+        case .android: return "\t<!-- \(value) -->\n"
         }
     }
 
     /// A localized string with the given value and tag for the platform.
-    func localizedString(with value: String, for tag: String) throws -> String {
+    private func localizedString(with value: String, for tag: String) throws -> String {
 
-        let formattedValue = try format(value: value)
+        let formattedValue = try formatLocalizedString(with: value)
 
         switch self {
         case .ios: return "\"\(tag)\" = \"\(formattedValue)\";\n"
@@ -108,7 +126,13 @@ public enum Platform: String {
         }
     }
 
-    func format(value: String) throws -> String {
+    /// An empty line for the platform.
+    private func emptyLine() -> String {
+        return "\n"
+    }
+
+    /// Format the given localized string for the platform
+    private func formatLocalizedString(with value: String) throws -> String {
 
         var formattedValue = value
 

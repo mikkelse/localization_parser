@@ -17,14 +17,8 @@ public final class LocalizationWriter {
         try append(value: fileHeader, to: filePath)
 
         for content in localization.contents {
-            switch content {
-            case .header(let value):
-                let header = localization.platform.header(with: value)
-                try append(value: header, to: filePath)
-            case .localizedString(let tag, let value):
-                let localizedString = try localization.platform.localizedString(with: value, for: tag)
-                try append(value: localizedString, to: filePath)
-            }
+            let content = try localization.platform.value(for: content)
+            try append(value: content, to: filePath)
         }
 
         let fileFooter = localization.platform.localizedFileFooter()

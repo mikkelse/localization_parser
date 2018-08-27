@@ -39,21 +39,27 @@ public enum LocalizationContent {
     /// The content is a localized string with the given tag and value.
     case localizedString(tag: String, value: String)
 
+    /// The content is an empty line.
+    case emptyLine
+
     /// The localization content for the given platform and language column value.
     static func content(from platformColumnValue: String, languageColumnValue: String) throws -> LocalizationContent {
 
         let headerMarkup = "#"
+
+        let trimmedPlatformValue = platformColumnValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedLanguageValue = languageColumnValue.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard trimmedPlatformValue.count > 0, trimmedLanguageValue.count > 0 else { return .emptyLine }
 
         if platformColumnValue.hasPrefix(headerMarkup) {
             let header = String(platformColumnValue.dropFirst(headerMarkup.count))
             let trimmedHeader = header.trimmingCharacters(in: .whitespacesAndNewlines)
             return .header(trimmedHeader)
         } else {
-            let trimmedTag = platformColumnValue.trimmingCharacters(in: .whitespacesAndNewlines)
-            let trimmedLocalization = languageColumnValue.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard trimmedTag.count > 0 else { throw Error.missingTag(languageColumnValue) }
-            guard trimmedLocalization.count > 0 else { throw Error.missingValue(platformColumnValue) }
-            return .localizedString(tag: trimmedTag, value: trimmedLocalization)
+            guard trimmedPlatformValue.count > 0 else { throw Error.missingTag(languageColumnValue) }
+            guard trimmedLanguageValue.count > 0 else { throw Error.missingValue(platformColumnValue) }
+            return .localizedString(tag: trimmedPlatformValue, value: trimmedLanguageValue)
         }
     }
 }
